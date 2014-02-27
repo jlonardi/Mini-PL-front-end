@@ -17,29 +17,30 @@ Context-free grammar for Mini-PL
 
 The syntax definition is given in so-called Extended Backus-Naur form (EBNF). In the following Mini-PL grammar, the notation X* means 0, 1, or more repetitions of the item X. The '|' operator is used to define alternative constructs. Parentheses may be used to group together a sequence of related symbols. Brackets ("[" "]") may be used to enclose optional parts (i.e., zero or one occurrence). Reserved keywords are marked bold (as "var"). Operators, separators, and other single or multiple character tokens are enclosed within quotes (as: ".."). Note that nested expressions are always fully parenthesized to specify the execution order of operations. 
  
+ ```
+ <prog>      ::=  <stmts>
+ <stmts>     ::=  <stmt> ";" ( <stmt> ";" )*
+ <stmt>      ::=  "var" <var_ident> ":" <type> [ ":=" <expr> ] 
+              |   <var_ident> ":=" <expr>  
+              |   "for" <var_ident> "in" <expr> ".." <expr> "do" <stmts> "end" "for"  
+              |   "read" <var_ident>  
+              |   "print" <expr>  
+              |   "assert" "(" <expr> ")"
 
- prog     ::=  stmts
- stmts    ::=  stmt ";" ( stmt ";" )*
- stmt     ::=  "var" var_ident ":" type [ ":=" expr ] 
-           |   var_ident ":=" expr  
-           |   "for" var_ident "in" expr ".." expr "do" 
-                  stmts "end" "for"  
-           |   "read" var_ident
-           |   "print" expr  
-           |   "assert" "(" expr ")"
-
- expr>    ::=  opnd op opnd
-           |   [ unary_op ] opnd
+ <expr>      ::=  <opnd> <op> <opnd>
+              |   [ <unary_op> ] <opnd>
 		   
- opnd>    ::=  int
-           |   string
-           |   var_ident
-           |   "(" expr ")"
-            
- type>     ::=  "int" | "string" | "bool"
- var_ident ::= ident
+ <opnd>      ::=  <int>
+              |   <string>
+              |   <var_ident>
+              |   "(" expr ")"
+              
+ <type>      ::=  "int" | "string" | "bool"
+ <var_ident> ::= <ident>
  
- reserved keyword>::= "var" | "for" | "end" | "in" | "do" | "read" | "print" | "int" | "string" | "bool" | "assert"
+ <reserved keyword> ::= "var" | "for" | "end" | "in" | "do" | "read" | "print" | "int" | "string" | "bool" | "assert"
+ 
+ ```
 
               
 Lexical issues
