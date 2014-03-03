@@ -1,9 +1,8 @@
-#include <iostream>
 #include "Scanner/ReadBuffer.h"
 #include "Scanner/Scanner.h"
 #include "Scanner/MiniRules.h"
-
-#include <vector>
+#include "Parser/Parser.h"
+#include <iostream>
 
 int main(int argc, char* argv[])
 {
@@ -14,6 +13,9 @@ int main(int argc, char* argv[])
 		ReadBuffer buffer(path);
 		MiniRules rules;
 		Scanner scanner(buffer, rules);
+		Parser parser(scanner);
+		parser.parse();
+		/*
 		scanner.scan();
 
 		while(scanner.tokensLeft())
@@ -22,7 +24,7 @@ int main(int argc, char* argv[])
 			std::cout << "<" << tkn.tag << " | " << tkn.lexeme << "> " << std::endl;
 			//std::cout << tkn.lexeme << std::endl;
 		}
-
+		*/
 	} else {
 		std::cout << "No source file given. Please give a source file as the first argument" << std::endl;
 	}

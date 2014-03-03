@@ -29,7 +29,6 @@
 	will be rapresenting an input character.
 */
 struct RuleSet {
-
 	std::vector<std::string> labels;
 	std::vector<std::string> reserved_words;
 	std::vector<std::vector<int>> state_transitions;
