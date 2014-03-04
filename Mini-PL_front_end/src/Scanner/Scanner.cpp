@@ -37,11 +37,10 @@ void Scanner::scan()
 					tag = ruleSet.reserved_words[i];
 				}
 			}
-			if(tag.compare("whitespace") && tag.compare("comment"))
-			{
-				tkn.symbol = m_rules.generateSymbol(tag);
-				m_tokens.push_back(tkn); // if token is not whitespace or comment save it
-			}
+
+			tkn.symbol = m_rules.generateSymbol(tag);
+			m_tokens.push_back(tkn); // if token is not whitespace or comment save it
+
 			lexeme = ""; // reset the lexeme
 			state = 0; // reset the state
 		} 
@@ -55,6 +54,11 @@ void Scanner::scan()
 		}
 
 	}
+
+	Token tkn;
+	tkn.symbol = m_rules.generateSymbol("END_OF_TEXT");
+	tkn.lexeme = "END";
+	m_tokens.push_back(tkn);
 }
 
 Token Scanner::nextToken()

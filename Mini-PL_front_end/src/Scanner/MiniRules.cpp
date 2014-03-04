@@ -93,7 +93,7 @@ MiniRules::MiniRules()
 	{  2,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2}, // 2 int
 	{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, // 3
 	{  3,  3,  3,  0,  3,  0,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3}, // 4 op_div
-	{  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4}, // 5 whitespace
+	{ 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20}, // 5 whitespace
 	{  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5}, // 6 op_mult
 	{  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6}, // 7 op_plus
 	{  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7}, // 8 op_minus
@@ -144,13 +144,13 @@ MiniRules::MiniRules()
 		}
 	}	
 
-	const char *temp_labels[20] = {	
+	const char *temp_labels[21] = {	
 		"reject", "identifier", "int", "op_div", "whitespace", "op_mult", 
 		"op_plus", "op_minus", "op_less", "colon", "op_equal", "op_and", 
 		"op_not", "semicolon", "lparen", "rparen", "string", "op_assign", 
-		"range", "comment"
+		"range", "comment", "newline"
 	};
-	for(int i=0;  i<20; i++)
+	for(int i=0;  i<21; i++)
 	{
 		m_rules.labels.push_back(temp_labels[i]);
 	}
@@ -213,6 +213,19 @@ int MiniRules::characterCategory(char c)
 // Creates a Symbol from the given tag
 Symbol MiniRules::generateSymbol(std::string tag)
 {
+
+	if(!tag.compare("whitespace"))
+	{
+		return Symbol::whitespace;
+	}
+	if(!tag.compare("comment"))
+	{
+		return Symbol::comment;
+	}
+	if(!tag.compare("newline"))
+	{
+		return Symbol::newline;
+	}
 	if(!tag.compare("identifier"))
 	{
 		return Symbol::identifier;
@@ -320,6 +333,10 @@ Symbol MiniRules::generateSymbol(std::string tag)
 	if(!tag.compare("assert"))
 	{
 		return Symbol::assert;
+	}
+	if(!tag.compare("END_OF_TEXT"))
+	{
+		return Symbol::end_of_text;
 	}
 	if(!tag.compare("ERROR"))
 	{
