@@ -210,16 +210,9 @@ int MiniRules::characterCategory(char c)
 	}
 }
 
+// Creates a Symbol from the given tag
 Symbol MiniRules::generateSymbol(std::string tag)
 {
-	Token tkn;
-	/*
-		"reject", "identifier", "int", "op_div", "whitespace", "op_mult", 
-		"op_plus", "op_minus", "op_less", "colon", "op_equal", "op_and", 
-		"op_not", "semicolon", "lparen", "rparen", "string", "op_assign", 
-		"range", "comment", "var", "for", "end", "in", "do", "read", 
-        "print", "int", "string", "bool", "assert"
-	*/
 	if(!tag.compare("identifier"))
 	{
 		return Symbol::identifier;
