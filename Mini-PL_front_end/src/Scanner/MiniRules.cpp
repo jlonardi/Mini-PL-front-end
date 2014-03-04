@@ -209,3 +209,128 @@ int MiniRules::characterCategory(char c)
 	default : return 21;
 	}
 }
+
+Symbol MiniRules::generateSymbol(std::string tag)
+{
+	Token tkn;
+	/*
+		"reject", "identifier", "int", "op_div", "whitespace", "op_mult", 
+		"op_plus", "op_minus", "op_less", "colon", "op_equal", "op_and", 
+		"op_not", "semicolon", "lparen", "rparen", "string", "op_assign", 
+		"range", "comment", "var", "for", "end", "in", "do", "read", 
+        "print", "int", "string", "bool", "assert"
+	*/
+	if(!tag.compare("identifier"))
+	{
+		return Symbol::identifier;
+	}
+	if(!tag.compare("op_div"))
+	{
+		return Symbol::op_div;
+	}
+	if(!tag.compare("op_mult"))
+	{
+		return Symbol::op_mult;
+	}
+	if(!tag.compare("op_plus"))
+	{
+		return Symbol::op_plus;
+	}
+	if(!tag.compare("op_minus"))
+	{
+		return Symbol::op_minus;
+	}
+	if(!tag.compare("op_less"))
+	{
+		return Symbol::op_less;
+	}
+	if(!tag.compare("colon"))
+	{
+		return Symbol::colon;
+	}
+	if(!tag.compare("op_equal"))
+	{
+		return Symbol::op_equal;
+	}
+	if(!tag.compare("op_and"))
+	{
+		return Symbol::op_and;
+	}
+	if(!tag.compare("op_not"))
+	{
+		return Symbol::op_not;
+	}
+	if(!tag.compare("semicolon"))
+	{
+		return Symbol::semicolon;
+	}
+	if(!tag.compare("lparen"))
+	{
+		return Symbol::lparen;
+	}
+	if(!tag.compare("rparen"))
+	{
+		return Symbol::rparen;
+	}
+	if(!tag.compare("string"))
+	{
+		return Symbol::string;
+	}
+	if(!tag.compare("op_assign"))
+	{
+		return Symbol::op_assign;
+	}
+	if(!tag.compare("range"))
+	{
+		return Symbol::range;
+	}
+	if(!tag.compare("comment"))
+	{
+		return Symbol::comment;
+	}
+	if(!tag.compare("var"))
+	{
+		return Symbol::var;
+	}
+	if(!tag.compare("for"))
+	{
+		return Symbol::for_stmt;
+	}
+	if(!tag.compare("end"))
+	{
+		return Symbol::end;
+	}
+	if(!tag.compare("in"))
+	{
+		return Symbol::in;
+	}
+	if(!tag.compare("do"))
+	{
+		return Symbol::do_stmt;
+	}
+	if(!tag.compare("read"))
+	{
+		return Symbol::read;
+	}
+	if(!tag.compare("print"))
+	{
+		return Symbol::print;
+	}
+	if(!tag.compare("int"))
+	{
+		return Symbol::integer;
+	}
+	if(!tag.compare("bool"))
+	{
+		return Symbol::boolean;
+	}
+	if(!tag.compare("assert"))
+	{
+		return Symbol::assert;
+	}
+	if(!tag.compare("ERROR"))
+	{
+		return Symbol::error;
+	}
+	return Symbol::error;
+};

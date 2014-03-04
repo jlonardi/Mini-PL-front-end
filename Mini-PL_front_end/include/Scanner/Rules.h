@@ -36,6 +36,13 @@ struct RuleSet {
 	std::vector<std::vector<int>> state_labels;
 };
 
+struct Token
+{
+	//std::string tag;
+	std::string lexeme;
+	enum Symbol symbol;
+};
+
 /*
 	A generic interface for the rules that describes a regular language.
 	The rules are used in a table-driven automaton that is used by the
@@ -47,6 +54,7 @@ public:
 	virtual ~Rules() { };
 	virtual RuleSet getRules() = 0;
 	virtual int characterCategory(char c) = 0;
+	virtual Symbol generateSymbol(std::string tag) = 0;
 };
 
 #endif

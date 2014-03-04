@@ -8,12 +8,6 @@
 #include <string>
 #include <list>
 
-struct Token
-{
-	std::string tag;
-	std::string lexeme;
-};
-
 class Scanner
 {
 public:

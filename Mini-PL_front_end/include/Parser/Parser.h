@@ -12,6 +12,7 @@ class Parser
 public:
 	Parser(Scanner& scanner);
 	bool parse();
+	virtual ~Parser() { };
 private:
 	void prog();
 	void stmnts();

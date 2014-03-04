@@ -9,7 +9,7 @@ bool Parser::parse()
 	while(m_scanner.tokensLeft())
 	{
 		Token tkn = m_scanner.nextToken();
-		std::cout << "<" << tkn.tag << " | " << tkn.lexeme << "> " << std::endl;
+		std::cout << "<" << tkn.lexeme << "> " << std::endl;
 		//std::cout << tkn.lexeme << std::endl;
 	};
 
