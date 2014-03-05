@@ -5,7 +5,7 @@
 
 #include "Scanner/Scanner.h"
 
-enum Error {no_error, unexpected_symbol, syntax_error, invalid_operator};
+enum Status {no_error, syntax_error, operator_error, type_error};
 
 class Parser
 {
@@ -19,13 +19,19 @@ private:
 	void stmnt();
 	void expr();
 	void opnd();
+	void op();
 	void type();
 	void var_ident();
-	bool expect(std::string symbol);
-	bool accept(std::string symbol);
+	bool match(Symbol expected, std::string tag);
+	void handleError();
+	void next();
+	bool is_operator();
 
 	Scanner& m_scanner;
-	Error status;
+	Status m_status;
+	Token m_current_token;
+	int m_current_line;
+	int m_current_index;
 };
 
 #endif
