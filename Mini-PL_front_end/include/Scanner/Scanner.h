@@ -16,6 +16,11 @@ public:
 	Token nextToken();
 	bool tokensLeft();
 private:
+	void processNextChar();
+	std::string lexeme;
+	int state;
+	char c;
+	RuleSet ruleSet;
 	Buffer& m_buffer;
 	Rules& m_rules;
 	std::list<Token> m_tokens;

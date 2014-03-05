@@ -41,6 +41,7 @@ var nTimes : int := 0;
      print "How many times?"; 
 	 
 	 // lets test a single line comment!"#¤%&/()=?@£${[]}´`¨^~'*,;.:-_//
+	  print "How many times?; 
      read nTimes; 
      var x : int;
      for x in 0..nTimes-1 do 
