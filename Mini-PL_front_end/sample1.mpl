@@ -37,15 +37,16 @@ Lets test the comment when it includes all possible ASCII characters (the ASCII 
 */
 
 
+//var x : bool;
 var nTimes : int := 0;
-     print "How many times?"; 
+print "How many times?";
 	 
-	 // lets test a single line comment!"#¤%&/()=?@£${[]}´`¨^~'*,;.:-_//
-	  print "How many times?; 
-     read nTimes; 
-     var x : int;
-     for x in 0..nTimes-1 do 
-         print x;
-         print " : Hello, World!\n";
-     end for;
+// lets test a single line comment!"#¤%&/()=?@£${[]}´`¨^~'*,;.:-_//
+print "How many times?";
+read nTimes;
+var x : int;
+  for x in 0..nTimes-1 do
+  print x;
+  print " : Hello, World!\n";
+end for;
      assert (x = nTimes);

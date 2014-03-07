@@ -2,6 +2,7 @@
 #include "Scanner/Scanner.h"
 #include "Scanner/MiniRules.h"
 #include "Parser/Parser.h"
+#include "Interpreter/Interpreter.h"
 #include <iostream>
 
 int main(int argc, char* argv[])
@@ -14,7 +15,10 @@ int main(int argc, char* argv[])
 		MiniRules rules;
 		Scanner scanner(buffer, rules);
 		Parser parser(scanner);
-		parser.parse();
+		Node* AST = parser.parse();
+		std::cout << std::endl << std::endl;
+		Interpreter interpreter;
+		interpreter.interprete(AST);
 		/*
 		scanner.scan();
 

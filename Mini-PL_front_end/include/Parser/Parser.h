@@ -4,6 +4,7 @@
 #define PARSER_H
 
 #include "Scanner/Scanner.h"
+#include "Parser/Node.h"
 
 enum Status {no_error, syntax_error, operator_error, type_error};
 
@@ -11,21 +12,25 @@ class Parser
 {
 public:
 	Parser(Scanner& scanner);
-	bool parse();
+	Node* parse();
 	virtual ~Parser() { };
 private:
-	void prog();
-	void stmnts();
-	void stmnt();
-	void expr();
-	void opnd();
-	void op();
-	void type();
+	Node* prog();
+	Node* stmnts();
+	Node* stmnts_tail();
+	Node* stmnt();
+	Node* expr();
+	Node* opnd();
+	Type op();
+	Type type();
 	void var_ident();
 	bool match(Symbol expected, std::string tag);
 	void handleError();
 	void next();
 	bool is_operator();
+
+	Node* createParentNode(Type type, Node* left, Node* right);
+	Node* createNode(Type type, std::string value);
 
 	Scanner& m_scanner;
 	Status m_status;
