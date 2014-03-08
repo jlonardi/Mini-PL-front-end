@@ -1,55 +1,292 @@
 #include "Interpreter/Interpreter.h"
+#include "Parser/Nodes/Statement.h"
+#include "Parser/Nodes/VarDeclaration.h"
+#include "Parser/Nodes/PrintStatement.h"
+#include "Parser/Nodes/ReadStatement.h"
+#include "Parser/Nodes/AssignStatement.h"
+#include "Parser/Nodes/ForStatement.h"
+#include "Parser/Nodes/UnaryOp.h"
+#include "Parser/Nodes/BinaryOp.h"
+#include "Parser/Nodes/IntegerConst.h"
+#include "Parser/Nodes/BooleanConst.h"
+#include "Parser/Nodes/StringLiteral.h"
+#include "Parser/Nodes/Variable.h"
+#include "Parser/Nodes/AssertStatement.h"
 #include <iostream>
+#include <sstream>
 
-void Interpreter::interprete(Node* AST)
+void Interpreter::interprete()
 {
-	if(AST == null) 
+	std::cout << "Starting interpretation..." << std::endl << std::endl;
+	if(root == null) 
 	{
 		std::cout << "AST is null, something went really wrong!" << std::endl;
 	} else {
-		evaluateSubtree(AST);
+		Statement* current = root;
+		while(current != null) 
+		{
+			current->visit(*this);
+			current = current->next;
+		}
 	};
 };
 
-void Interpreter::evaluateSubtree(Node* node)
+void Interpreter::visit(VarDeclaration& node)
 {
-	if(node == null)
+	Entry entry;
+	entry.name = node.id;
+	entry.declType = node.declType;
+	Expression* expr = node.expression;
+	if(expr != null)
 	{
-		return;
+		entry.value = node.expression->evaluate(*this);
+		entry.type = node.expression->typeCheck(*this);
+		if(entry.type != entry.declType)
+		{
+			std::cout << "Error! Tried to assign expression type " << typeToString(entry.type) << " to variable type " << typeToString(entry.declType) << "." << std::endl;
+		};
+	} else {
+		entry.value = "";
+		entry.type = ValueType::undefined;
+	}
+	symbolTable.push_back(entry);
+};
+
+void Interpreter::visit(AssignStatement& node)
+{
+	std::string value = node.expression->evaluate(*this);
+	std::string varName =node.varID;
+	for(unsigned i=0; i<symbolTable.size(); i++)
+	{
+		if(!symbolTable.at(i).name.compare(varName))
+		{
+			if(symbolTable.at(i).declType != node.expression->typeCheck(*this))
+			{
+				std::cout << "Trying to assign type " << typeToString(node.expression->typeCheck(*this)) 
+					<< " to type " << typeToString(symbolTable.at(i).declType) << "." << std::endl;
+			};
+			symbolTable.at(i).value = value;
+			symbolTable.at(i).type = node.expression->typeCheck(*this);
+		}
+	}
+};
+
+void Interpreter::visit(ForStatement& node)
+{
+	int from = std::stoi(node.from->evaluate(*this));
+	int to = std::stoi(node.to->evaluate(*this));
+	int x = 0;
+
+	int tableIndex = 0;
+	for(unsigned i=0; i<symbolTable.size(); i++)
+	{
+		if(!symbolTable.at(i).name.compare(node.var))
+		{
+			if(symbolTable.at(i).type != ValueType::undefined)
+			{
+				x = std::stoi(symbolTable.at(i).value);
+			}
+			symbolTable.at(i).type = ValueType::number;
+			symbolTable.at(i).value = intToString(x);
+			tableIndex = i;
+			break;
+		}
+	}
+
+	while(x>=from && x<=to)
+	{
+		Statement* current = node.statements;
+		while(current != null) 
+		{
+			current->visit(*this);
+			current = current->next;
+		}
+		x++;
+		symbolTable.at(tableIndex).value = intToString(x);
 	};
-	Type type = node->type;
+};
+
+void Interpreter::visit(ReadStatement& node)
+{
+	std::string varName =node.destionationVar;
+	for(unsigned i=0; i<symbolTable.size(); i++)
+	{
+		if(!symbolTable.at(i).name.compare(varName))
+		{
+			std::string value;
+			std::cin >> value;
+			std::cin.ignore();
+			if(symbolTable.at(i).declType == ValueType::string)
+			{
+				symbolTable.at(i).value = value;
+				symbolTable.at(i).type = ValueType::string;
+			} else if(symbolTable.at(i).declType == ValueType::number)
+			{ 
+				std::ostringstream oss;
+				try {
+					oss << std::stoi(value);
+					symbolTable.at(i).value = oss.str();
+					symbolTable.at(i).type = ValueType::number;
+				} catch(std::invalid_argument) {
+					std::cout << "Invalid argument Exception! Could not set value \"" << value << "\" for variable " << varName <<"."<< std::endl;
+					symbolTable.at(i).value = "";
+					symbolTable.at(i).type = ValueType::undefined;
+				}
+				
+			}
+		}
+	}
+};
+
+void Interpreter::visit(PrintStatement& node)
+{
+	std::cout << node.expression->evaluate(*this) << std::endl;
+};
+
+void Interpreter::visit(AssertStatement& node)
+{
+	std::string result = node.expression->evaluate(*this);
+};
+
+std::string Interpreter::evaluate(const IntegerConst& node)
+{
+	return node.value;
+};
+
+std::string Interpreter::evaluate(const StringLiteral& node)
+{
+	return node.value;
+};
+std::string Interpreter::evaluate(const Variable& node)
+{
+	std::string value;
+	std::string varName =node.id;
+	for(unsigned i=0; i<symbolTable.size(); i++)
+	{
+		if(!symbolTable.at(i).name.compare(varName))
+		{
+			if(symbolTable.at(i).type != ValueType::undefined)
+			{
+				return symbolTable.at(i).value;
+			};
+		}
+	}
+	return "Undefined";
+};
+std::string Interpreter::evaluate(BinaryOp& node)
+{
+	std::string lhsValue = node.lhs->evaluate(*this);
+	std::string rhsValue = node.rhs->evaluate(*this);
+
+	switch(node.typeCheck(*this))
+	{
+	case ValueType::number:
+		{
+			std::ostringstream val;
+			switch(node.type)
+			{
+			case OperatorType::plus:
+				val << std::stoi(lhsValue) + std::stoi(rhsValue);
+				break;
+			case OperatorType::minus:
+				val << std::stoi(lhsValue) - std::stoi(rhsValue);
+				break;
+			case OperatorType::multiplication:
+				val << std::stoi(lhsValue) * std::stoi(rhsValue);
+				break;
+			case OperatorType::division:
+				val << std::stoi(lhsValue) / std::stoi(rhsValue);
+				break;
+			case OperatorType::less:
+				val << std::boolalpha << (std::stoi(lhsValue) < std::stoi(rhsValue));
+				break;
+			case OperatorType::equal:
+				val << std::boolalpha << (std::stoi(lhsValue) == std::stoi(rhsValue));
+				break;
+			case OperatorType::and:
+				std::istringstream is(lhsValue + rhsValue);
+				bool lhsBool, rhsBool;
+				is >> std::boolalpha >> lhsBool;
+				is >> std::boolalpha >> rhsBool;
+				is.~is();
+				val << std::boolalpha << (lhsBool && rhsBool);
+				break;
+			}
+
+			return val.str();
+		}
+	case ValueType::string:
+		return lhsValue + rhsValue;
+	default:
+		return "Undefined";
+	};
+}
+
+std::string Interpreter::evaluate(UnaryOp& node)
+{
+	return node.expression->evaluate(*this);
+};
+
+ValueType Interpreter::typeCheck(const IntegerConst& node)
+{
+	return ValueType::number;
+};
+
+ValueType Interpreter::typeCheck(const StringLiteral& node)
+{
+	return ValueType::string;
+};
+
+ValueType Interpreter::typeCheck(const Variable& node)
+{
+	std::string varName =node.id;
+	for(unsigned i=0; i<symbolTable.size(); i++)
+	{
+		if(!symbolTable.at(i).name.compare(varName))
+		{
+			ValueType type = symbolTable.at(i).type;
+			if(type == ValueType::undefined)
+			{
+				std::cout << "Trying to use an undefiend variable " << node.id << " at line " << node.lineNumber << "." << std::endl;
+			};
+			return type;
+		}
+	}
+	std::cout << "Trying to use an undeclared variable " << node.id << " at line " << node.lineNumber << "." << std::endl;
+	return ValueType::undefined;
+};
+
+ValueType Interpreter::typeCheck(BinaryOp& node)
+{
+	if(node.lhs->typeCheck(*this) != node.rhs->typeCheck(*this))
+	{
+		//std::cout << "Operator left hand side type does not match the right hand side at line " << node.lineNumber << "." << std::endl;
+		return ValueType::undefined;	// If types does not match the type is defined as undefined.
+	}
+	return node.lhs->typeCheck(*this);
+};
+
+ValueType Interpreter::typeCheck(UnaryOp& node)
+{
+	return node.expression->typeCheck(*this);
+};
+
+std::string Interpreter::typeToString(ValueType type)
+{
 	switch(type)
 	{
-	case Type::statement: 
-		{
-			evaluateSubtree(node->left);
-			evaluateSubtree(node->right);
-			break;
-		}
-	case Type::variable:
-		{
-			std::string varName = node->left->value;
-			Type type = node->right->type;
-			bool inTable = false;
-			for(std::vector<Entry>::iterator it = symbolTable.begin(); it != symbolTable.end(); ++it)
-			{
-				Entry e = *it;
-				if(!e.name.compare(varName))
-				{
-					inTable = true;
-					break;
-				}
-			};
-			if(inTable)
-			{
-				std::cout << "Declaration of variable " << varName << " can be done only once!" << std::endl;
-			} else {
-				Entry e;
-				e.name = varName;
-				e.type = type;
-				symbolTable.push_back(e);
-			}
-			break;
-		}
+	case ValueType::number:
+		return "integer";
+	case ValueType::string:
+		return "string";
+	default:
+		return "undefined";
 	};
+};
+
+std::string Interpreter::intToString(int i)
+{
+	std::ostringstream oss;
+	oss << i;
+	return oss.str();
 };

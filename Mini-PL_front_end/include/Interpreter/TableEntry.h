@@ -9,7 +9,6 @@ class TableEntry
 {
 public:
 	std::string  name;
-	
 };
 
 #endif
