@@ -38,7 +38,6 @@ struct RuleSet {
 
 struct Token
 {
-	//std::string tag;
 	std::string lexeme;
 	enum Symbol symbol;
 };
