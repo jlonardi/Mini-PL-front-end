@@ -4,7 +4,10 @@
 #define PARSER_H
 
 #include "Scanner/Scanner.h"
-#include "Parser/Node.h"
+#include "Parser/Nodes/Node.h"
+#include "Parser/Nodes/BinaryOp.h"
+#include "Parser/Nodes/VarDeclaration.h"
+#include "Parser/Nodes/AssignStatement.h"
 
 enum Status {no_error, syntax_error, operator_error, type_error};
 
@@ -12,25 +15,23 @@ class Parser
 {
 public:
 	Parser(Scanner& scanner);
-	Node* parse();
+	Statement* parse();
 	virtual ~Parser() { };
 private:
-	Node* prog();
-	Node* stmnts();
-	Node* stmnts_tail();
-	Node* stmnt();
-	Node* expr();
-	Node* opnd();
-	Type op();
-	Type type();
+	Statement* prog();
+	Statement* stmnts();
+	Statement* stmnts_tail();
+	Statement* stmnt();
+	Expression* expr();
+	Expression* opnd();
+	OperatorType op();
+	ValueType varType();
 	void var_ident();
 	bool match(Symbol expected, std::string tag);
 	void handleError();
 	void next();
 	bool is_operator();
-
-	Node* createParentNode(Type type, Node* left, Node* right);
-	Node* createNode(Type type, std::string value);
+	std::string fixLexeme(std::string lexeme);
 
 	Scanner& m_scanner;
 	Status m_status;
