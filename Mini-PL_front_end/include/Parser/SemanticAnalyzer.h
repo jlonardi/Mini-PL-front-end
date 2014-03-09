@@ -19,10 +19,12 @@ class Statement;
 class SemanticAnalyzer : public Visitor, public TypeChecker
 {
 public:
+	SemanticAnalyzer() { };
 	SemanticAnalyzer(Statement* node) : root(node), errors(false) { };
 	virtual bool analyze();
 	virtual ValueType typeCheck(UnaryOp& node);
-private:
+protected:
+	
 	Statement* root;
 	bool errors;
 	std::vector<Entry> symbolTable;
@@ -30,7 +32,7 @@ private:
 	virtual void visit(VarDeclaration& node) ;
 	virtual void visit(AssignStatement& node);
 	virtual void visit(ForStatement& node);
-	virtual void visit(ReadStatement& node) { };
+	virtual void visit(ReadStatement& node);
 	virtual void visit(PrintStatement& node);
 	virtual void visit(AssertStatement& node) { };
 	virtual ValueType typeCheck(const IntegerConst& node);
@@ -39,7 +41,6 @@ private:
 	virtual ValueType typeCheck(BinaryOp& node);
 
 	std::string typeToString(ValueType type);
-	void printErorrMessage(std::string action, int line);
 };
 
 #endif

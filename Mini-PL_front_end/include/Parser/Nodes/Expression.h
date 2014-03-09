@@ -8,7 +8,6 @@
 #include "Interpreter/Evaluator.h"
 
 enum class ExpressionType { unary, operation };
-enum class ValueType {number, string, boolean, undefined, undeclared};
 
 class Expression : public Node
 {

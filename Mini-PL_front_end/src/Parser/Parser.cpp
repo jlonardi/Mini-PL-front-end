@@ -52,6 +52,7 @@ Statement* Parser::stmnt()
 	{
 	case Symbol::var:
 		{
+			int lineNmbr = m_current_line;
 			std::cout << m_current_token.lexeme;
 			next();
 			std::string variableID = m_current_token.lexeme;
@@ -66,6 +67,7 @@ Statement* Parser::stmnt()
 			}
 			Statement* stmnt = new VarDeclaration(variableID, expression, type);
 			stmnt->type = StatementType::declaration;
+			stmnt->lineNumber = lineNmbr;
 			return stmnt;
 		}
 	case Symbol::identifier:
@@ -74,13 +76,15 @@ Statement* Parser::stmnt()
 			std::string idName = m_current_token.lexeme;
 			next();
 			match(Symbol::op_assign, ":=");
-			Expression* expression = expr();
-			Statement* stmnt = new AssignStatement(idName, expression);
+			Expression* ex = expr();
+			Statement* stmnt = new AssignStatement(idName, ex);
 			stmnt->type = StatementType::assign;
+			stmnt->lineNumber = ex->lineNumber;
 			return stmnt;
 		}
 	case Symbol::for_stmt:
 		{
+			int lineNmbr = m_current_line;
 			std::cout << m_current_token.lexeme;
 			next();
 			std::string varName = m_current_token.lexeme;
@@ -95,16 +99,19 @@ Statement* Parser::stmnt()
 			match(Symbol::for_stmt, "for");
 			Statement* stmnt = new ForStatement(varName, from, to, statements);
 			stmnt->type = StatementType::for_stmnt;
+			stmnt->lineNumber = lineNmbr;
 			return stmnt;
 		}
 	case Symbol::read:
 		{
 			std::cout << m_current_token.lexeme;
+			int lineNmbr = m_current_line;
 			next();
 			std::string destVar = m_current_token.lexeme;
 			match(Symbol::identifier, "<identifier>");
 			Statement* stmnt = new ReadStatement(destVar);
 			stmnt->type = StatementType::read;
+			stmnt->lineNumber = lineNmbr;
 			return stmnt;
 		}
 	case Symbol::print:
@@ -114,6 +121,7 @@ Statement* Parser::stmnt()
 			Expression* ex = expr();
 			Statement* stmnt = new PrintStatement(ex);
 			stmnt->type = StatementType::print;
+			stmnt->lineNumber = ex->lineNumber;
 			return stmnt;
 		}
 	case Symbol::assert:
@@ -125,6 +133,7 @@ Statement* Parser::stmnt()
 			match(Symbol::rparen, ")");
 			Statement* stmnt = new AssertStatement(ex);
 			stmnt->type = StatementType::assert;
+			stmnt->lineNumber = ex->lineNumber;
 			return stmnt;
 		}
 	default:

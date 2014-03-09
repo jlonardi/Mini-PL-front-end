@@ -17,7 +17,7 @@
 
 bool SemanticAnalyzer::analyze()
 {
-	std::cout << std::endl << "Starting semantic analysis..."<< std::endl;
+	std::cout << std::endl << "Starting semantic analysis..." << std::endl << std::endl;
 	if(root == null) 
 	{
 		std::cout << "AST is null, something went really wrong!" << std::endl;
@@ -34,6 +34,16 @@ bool SemanticAnalyzer::analyze()
 
 void SemanticAnalyzer::visit(VarDeclaration& node)
 {
+
+	for(unsigned i=0; i<symbolTable.size(); i++)
+	{
+		if(!symbolTable.at(i).name.compare(node.id))
+		{
+			std::cout << "Redefinition of identifier " << node.id << " at line " << node.lineNumber << "." << std::endl;
+			errors = true;
+		}
+	}
+
 	Entry entry;
 	entry.name = node.id;
 	entry.declType = node.declType;
@@ -56,18 +66,19 @@ void SemanticAnalyzer::visit(VarDeclaration& node)
 
 void SemanticAnalyzer::visit(AssignStatement& node)
 {
-	std::string varName =node.varID;
+	std::string varName = node.varID;
 	for(unsigned i=0; i<symbolTable.size(); i++)
 	{
 		if(!symbolTable.at(i).name.compare(varName))
 		{
-			if(symbolTable.at(i).declType != node.expression->typeCheck(*this))
+			ValueType type = node.expression->typeCheck(*this);
+			if(symbolTable.at(i).declType != type)
 			{
-				std::cout << "Trying to assign type " << typeToString(node.expression->typeCheck(*this)) 
+				std::cout << "Trying to assign type " << typeToString(type) 
 					<< " to type " << typeToString(symbolTable.at(i).declType) << " at line " << node.lineNumber << "." << std::endl;
 				errors = true;
 			};
-			symbolTable.at(i).type = node.expression->typeCheck(*this);
+			symbolTable.at(i).type = type;
 		}
 	}
 };
@@ -75,6 +86,7 @@ void SemanticAnalyzer::visit(AssignStatement& node)
 void SemanticAnalyzer::visit(ForStatement& node)
 {
 	int tableIndex = 0;
+	bool found = false;
 	for(unsigned i=0; i<symbolTable.size(); i++)
 	{
 		if(!symbolTable.at(i).name.compare(node.var))
@@ -82,12 +94,37 @@ void SemanticAnalyzer::visit(ForStatement& node)
 			if(symbolTable.at(i).declType != ValueType::number)
 			{
 				std::cout << "Can't use " << typeToString(symbolTable.at(i).declType)
-					<< " identifier as an iterator index at line " << node.lineNumber << "." << std::endl;
+					<< " identifier as an index at line " << node.lineNumber << "." << std::endl;
 				errors = true;
 			};
 			symbolTable.at(i).type = ValueType::number;
+			found = true;
 		}
 	}
+
+	if(!found)
+	{
+		std::cout << "Can't use undeclared identifier \"" << node.var << "\" as an index at line " << node.lineNumber << "." << std::endl;
+		errors = true;
+	};
+
+	ValueType type = node.from->typeCheck(*this);
+
+	if(type == ValueType::undefined || type == ValueType::undeclared)
+	{
+		std::cout << "Can't use " << typeToString(type)
+			<< " as the range value \"from\" at line " << node.from->lineNumber << "." << std::endl;
+		errors = true;
+	};
+
+	type = node.to->typeCheck(*this);
+
+	if(type == ValueType::undefined || type == ValueType::undeclared)
+	{
+		std::cout << "Can't use " << typeToString(type)
+			<< " as the range value \"to\" at line " << node.to->lineNumber << "." << std::endl;
+		errors = true;
+	};
 
 	Statement* current = node.statements;
 	while(current != null) 
@@ -97,11 +134,31 @@ void SemanticAnalyzer::visit(ForStatement& node)
 	}
 };
 
+void SemanticAnalyzer::visit(ReadStatement& node)
+{
+	bool found = false;
+	for(unsigned i=0; i<symbolTable.size(); i++)
+	{
+		if(!symbolTable.at(i).name.compare(node.destionationVar))
+		{
+			found = true;
+			symbolTable.at(i).type = symbolTable.at(i).declType;
+			break;
+		}
+	}
+
+	if(!found)
+	{
+		std::cout << "Trying to read into an undeclared variable." << std::endl;
+	};
+}
+
 void SemanticAnalyzer::visit(PrintStatement& node)
 {
-	if(node.expression->typeCheck(*this) == ValueType::undefined || node.expression->typeCheck(*this) == ValueType::undeclared)
+	ValueType type = node.expression->typeCheck(*this);
+	if(type == ValueType::undefined || type == ValueType::undeclared)
 	{
-		std::cout << "Trying to print an " << typeToString(node.expression->typeCheck(*this)) << " identifier at line " << node.expression->lineNumber << std::endl;
+		std::cout << "Trying to print an " << typeToString(type) << " identifier at line " << node.lineNumber << std::endl;
 		errors = true;
 	}
 };
@@ -124,22 +181,17 @@ ValueType SemanticAnalyzer::typeCheck(const Variable& node)
 		if(!symbolTable.at(i).name.compare(varName))
 		{
 			ValueType type = symbolTable.at(i).type;
-			//if(type == ValueType::undefined)
-			//{
-			//	std::cout << "Trying to use an undefiend variable " << node.id << " at line " << node.lineNumber << "." << std::endl;
-			//	errors = true;
-			//};
 			return type;
 		}
 	}
-	//std::cout << "Trying to use an undeclared variable " << node.id << " at line " << node.lineNumber << "." << std::endl;
-	errors = true;
 	return ValueType::undeclared;
 };
 
 ValueType SemanticAnalyzer::typeCheck(BinaryOp& node)
 {
-	if(node.lhs->typeCheck(*this) != node.rhs->typeCheck(*this))
+	ValueType lhsType = node.lhs->typeCheck(*this);
+	ValueType rhsType = node.rhs->typeCheck(*this);
+	if(lhsType != rhsType)
 	{
 		std::cout << "Operator left hand side type does not match the right hand side at line " << node.lineNumber << "." << std::endl;
 		errors = true;
@@ -166,9 +218,4 @@ std::string SemanticAnalyzer::typeToString(ValueType type)
 	default:
 		return "undefined";
 	};
-};
-
-void SemanticAnalyzer::printErorrMessage(std::string action, int line)
-{
-
 };

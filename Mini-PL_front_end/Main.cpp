@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 		bool errors = analyzer.analyze();
 		if(errors)
 		{
-			std::cout << "There was errors during the semantic analysis, skipping interpretation part." << std::endl;
+			std::cout << std::endl << "There was errors during the semantic analysis, skipping interpretation part." << std::endl;
 		} else {
 			Interpreter interpreter(root);
 			interpreter.interprete();
