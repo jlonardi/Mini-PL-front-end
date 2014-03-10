@@ -10,7 +10,7 @@ Scanner::Scanner(Buffer& buffer, Rules& rules)
 
 void Scanner::scan()
 {
-	std::cout << "Starting to scan the source..." << std::endl;
+	//std::cout << "Starting to scan the source..." << std::endl;
 	while(!m_buffer.empty())
 	{
 		c = m_buffer.read();

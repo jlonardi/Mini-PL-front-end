@@ -17,7 +17,7 @@
 
 bool SemanticAnalyzer::analyze()
 {
-	std::cout << "Starting semantic analysis..." << std::endl;
+	//std::cout << "Starting semantic analysis..." << std::endl;
 	if(root == null) 
 	{
 		return true; // There is an error

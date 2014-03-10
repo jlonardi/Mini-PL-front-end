@@ -18,7 +18,7 @@ Parser::Parser(Scanner& scanner)
 Statement* Parser::parse()
 {
 	m_scanner.scan();
-	std::cout << "Starting to parse the source..." << std::endl;
+	//std::cout << "Starting to parse the source..." << std::endl;
 
 	Statement* AST = prog();
 	if(error)

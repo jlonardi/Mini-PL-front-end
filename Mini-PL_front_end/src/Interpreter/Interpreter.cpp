@@ -17,7 +17,7 @@
 
 void Interpreter::interprete()
 {
-	std::cout << "Starting interpretation..." << std::endl << std::endl;
+	//std::cout << "Starting interpretation..." << std::endl << std::endl;
 	if(root == null) 
 	{
 		std::cout << "AST is null, something went really wrong!" << std::endl;
