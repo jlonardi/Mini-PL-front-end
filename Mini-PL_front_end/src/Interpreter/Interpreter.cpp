@@ -105,10 +105,10 @@ void Interpreter::visit(ReadStatement& node)
 			std::string value;
 			std::cin >> value;
 			std::cin.ignore();
-			if(symbolTable.at(i).declType == ValueType::string)
+			if(symbolTable.at(i).declType == ValueType::string_literal)
 			{
 				symbolTable.at(i).value = value;
-				symbolTable.at(i).type = ValueType::string;
+				symbolTable.at(i).type = ValueType::string_literal;
 			} else if(symbolTable.at(i).declType == ValueType::number)
 			{ 
 				try {
@@ -127,7 +127,7 @@ void Interpreter::visit(ReadStatement& node)
 
 void Interpreter::visit(PrintStatement& node)
 {
-	std::cout << node.expression->evaluate(*this) << std::endl;
+	std::cout << node.expression->evaluate(*this);
 };
 
 void Interpreter::visit(AssertStatement& node)
@@ -202,7 +202,7 @@ std::string Interpreter::evaluate(BinaryOp& node)
 
 			return val.str();
 		}
-	case ValueType::string:
+	case ValueType::string_literal:
 		return lhsValue + rhsValue;
 	default:
 		return "Undefined";

@@ -11,7 +11,7 @@ public:
 	std::string value;
 	StringLiteral(std::string val) : value(val) 
 	{
-		valueType = ValueType::string;
+		valueType = ValueType::string_literal;
 	};
 	virtual std::string evaluate(Evaluator& ev)
 	{

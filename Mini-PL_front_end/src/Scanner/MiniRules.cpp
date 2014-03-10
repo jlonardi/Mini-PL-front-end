@@ -147,7 +147,7 @@ MiniRules::MiniRules()
 	const char *temp_labels[21] = {	
 		"reject", "identifier", "int", "op_div", "whitespace", "op_mult", 
 		"op_plus", "op_minus", "op_less", "colon", "op_equal", "op_and", 
-		"op_not", "semicolon", "lparen", "rparen", "string", "op_assign", 
+		"op_not", "semicolon", "lparen", "rparen", "string_literal", "op_assign", 
 		"range", "comment", "newline"
 	};
 	for(int i=0;  i<21; i++)
@@ -281,6 +281,10 @@ Symbol MiniRules::generateSymbol(std::string tag)
 	if(!tag.compare("string"))
 	{
 		return Symbol::string;
+	}
+	if(!tag.compare("string_literal"))
+	{
+		return Symbol::string_literal;
 	}
 	if(!tag.compare("op_assign"))
 	{

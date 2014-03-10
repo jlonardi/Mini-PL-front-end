@@ -17,10 +17,10 @@
 
 bool SemanticAnalyzer::analyze()
 {
-	std::cout << std::endl << "Starting semantic analysis..." << std::endl << std::endl;
+	std::cout << "Starting semantic analysis..." << std::endl;
 	if(root == null) 
 	{
-		std::cout << "AST is null, something went really wrong!" << std::endl;
+		return true; // There is an error
 	} else {
 		Statement* current = root;
 		while(current != null) 
@@ -170,7 +170,7 @@ ValueType SemanticAnalyzer::typeCheck(const IntegerConst& node)
 
 ValueType SemanticAnalyzer::typeCheck(const StringLiteral& node)
 {
-	return ValueType::string;
+	return ValueType::string_literal;
 };
 
 ValueType SemanticAnalyzer::typeCheck(const Variable& node)
@@ -193,7 +193,7 @@ ValueType SemanticAnalyzer::typeCheck(BinaryOp& node)
 	ValueType rhsType = node.rhs->typeCheck(*this);
 	if(lhsType != rhsType)
 	{
-		std::cout << "Operator left hand side type does not match the right hand side at line " << node.lineNumber << "." << std::endl;
+		//std::cout << "Operator left hand side type does not match the right hand side at line " << node.lineNumber << "." << std::endl;
 		errors = true;
 		return ValueType::undefined;	// If types does not match the type is defined as undefined.
 	}
@@ -211,7 +211,7 @@ std::string SemanticAnalyzer::typeToString(ValueType type)
 	{
 	case ValueType::number:
 		return "integer";
-	case ValueType::string:
+	case ValueType::string_literal:
 		return "string";
 	case ValueType::undeclared:
 		return "undeclared";
