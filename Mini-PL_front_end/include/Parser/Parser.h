@@ -16,6 +16,7 @@ class Parser
 public:
 	Parser(Scanner& scanner);
 	Statement* parse();
+	bool errors() { return error; };
 	virtual ~Parser() { };
 private:
 	Statement* prog();
@@ -33,11 +34,13 @@ private:
 	bool is_operator();
 	std::string fixLexeme(std::string lexeme);
 
+	
 	Scanner& m_scanner;
 	Status m_status;
 	Token m_current_token;
 	int m_current_line;
 	int m_current_index;
+	bool error;
 };
 
 #endif

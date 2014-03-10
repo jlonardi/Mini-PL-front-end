@@ -1,5 +1,4 @@
 #include "Parser/Parser.h"
-//#include "Parser/Nodes/Operand.h"
 #include "Parser/Nodes/IntegerConst.h"
 #include "Parser/Nodes/StringLiteral.h"
 #include "Parser/Nodes/Variable.h"
@@ -11,15 +10,23 @@
 #include "Parser/Nodes/ForStatement.h"
 #include "Scanner/miniRules.h"
 #include <iostream>
+#include <sstream>
 
 Parser::Parser(Scanner& scanner) 
-	: m_scanner(scanner), m_status(Status::no_error), m_current_line(1), m_current_index(1) {};
+	: m_scanner(scanner), m_status(Status::no_error), m_current_line(1), m_current_index(1), error(false) {};
 
 Statement* Parser::parse()
 {
 	m_scanner.scan();
+	std::cout << "Starting to parse the source..." << std::endl;
 
-	return prog();
+	Statement* AST = prog();
+	if(error)
+	{
+		return null;
+	} else {
+		return AST;
+	}
 };
 
 Statement* Parser::prog()
@@ -30,9 +37,24 @@ Statement* Parser::prog()
 
 Statement* Parser::stmnts()
 {
-	Statement* statement = stmnt();
-	match(Symbol::semicolon, ";");
-	statement->next = stmnts_tail();
+	Statement* statement = null;
+	try {
+		statement = stmnt();
+		match(Symbol::semicolon, ";");
+		statement->next = stmnts_tail();
+	} catch( std::exception& e ) {
+		std::cerr << e.what();
+		handleError();
+
+		if(statement == null)
+		{
+			statement = stmnts_tail();
+		} else {
+			statement->next = stmnts_tail();
+		}
+	};
+
+
 	return statement;
 }
 
@@ -53,7 +75,6 @@ Statement* Parser::stmnt()
 	case Symbol::var:
 		{
 			int lineNmbr = m_current_line;
-			std::cout << m_current_token.lexeme;
 			next();
 			std::string variableID = m_current_token.lexeme;
 			match(Symbol::identifier, "<identifier>");
@@ -61,7 +82,6 @@ Statement* Parser::stmnt()
 			ValueType type = varType();
 			Expression* expression = null;
 			if(m_current_token.symbol == Symbol::op_assign) {
-				std::cout << m_current_token.lexeme;
 				next();
 				expression = expr();
 			}
@@ -72,7 +92,6 @@ Statement* Parser::stmnt()
 		}
 	case Symbol::identifier:
 		{
-			std::cout << m_current_token.lexeme;
 			std::string idName = m_current_token.lexeme;
 			next();
 			match(Symbol::op_assign, ":=");
@@ -85,7 +104,6 @@ Statement* Parser::stmnt()
 	case Symbol::for_stmt:
 		{
 			int lineNmbr = m_current_line;
-			std::cout << m_current_token.lexeme;
 			next();
 			std::string varName = m_current_token.lexeme;
 			match(Symbol::identifier, "<identifier>");
@@ -104,7 +122,6 @@ Statement* Parser::stmnt()
 		}
 	case Symbol::read:
 		{
-			std::cout << m_current_token.lexeme;
 			int lineNmbr = m_current_line;
 			next();
 			std::string destVar = m_current_token.lexeme;
@@ -116,7 +133,6 @@ Statement* Parser::stmnt()
 		}
 	case Symbol::print:
 		{
-			std::cout << m_current_token.lexeme;
 			next();
 			Expression* ex = expr();
 			Statement* stmnt = new PrintStatement(ex);
@@ -126,7 +142,6 @@ Statement* Parser::stmnt()
 		}
 	case Symbol::assert:
 		{
-			std::cout << m_current_token.lexeme;
 			next();
 			match(Symbol::lparen, "(");
 			Expression* ex = expr();
@@ -137,8 +152,10 @@ Statement* Parser::stmnt()
 			return stmnt;
 		}
 	default:
-		std::cout << "Syntax error! Unexpected token at " << m_current_line << ":" << m_current_index << "." << std::endl;
-		next();
+		//std::cout << "Syntax error! Unexpected token at " << m_current_line << ":" << m_current_index << "." << std::endl;
+		std::ostringstream oss;
+		oss << "Syntax error! Unexpected token at " << m_current_line << ":" << m_current_index << "." << std::endl;
+		throw std::logic_error( oss.str() );
 		return null;
 	}
 };
@@ -150,7 +167,6 @@ Expression* Parser::expr()
 	if(m_current_token.symbol == Symbol::op_not)
 	{
 		notPresent = true;
-		std::cout << m_current_token.lexeme;
 		next();
 	}
 
@@ -201,16 +217,14 @@ Expression* Parser::opnd()
 	{
 	case Symbol::integer:
 		{
-			std::cout << m_current_token.lexeme;
 			node = new IntegerConst(m_current_token.lexeme);
 			node->lineNumber = m_current_line;
 			node->column = m_current_index - m_current_token.lexeme.length();
 			next();
 			break;
 		}
-	case Symbol::string:
+	case Symbol::string_literal:
 		{
-			std::cout << m_current_token.lexeme;
 			node = new StringLiteral(m_current_token.lexeme);
 			node->lineNumber = m_current_line;
 			node->column = m_current_index - m_current_token.lexeme.length();
@@ -219,7 +233,6 @@ Expression* Parser::opnd()
 		}
 	case Symbol::identifier:
 		{
-			std::cout << m_current_token.lexeme;
 			node = new Variable(m_current_token.lexeme);
 			node->lineNumber = m_current_line;
 			node->column = m_current_index - m_current_token.lexeme.length();
@@ -227,14 +240,14 @@ Expression* Parser::opnd()
 			break;
 		}
 	case Symbol::lparen:
-		std::cout << m_current_token.lexeme;
 		next();
 		node = expr();
 		match(Symbol::rparen, ")");
 		break;
 	default:
-		std::cout << "Unexpected operand at " << m_current_line << ":" << m_current_index - m_current_token.lexeme.length() << "." << std::endl;
-		next();
+		std::ostringstream oss;
+		oss << "Unexpected operand at " << m_current_line << ":" << m_current_index - m_current_token.lexeme.length() << "." << std::endl;
+		throw std::logic_error( oss.str() );
 	};
 
 	return node;
@@ -245,40 +258,34 @@ OperatorType Parser::op()
 	switch(m_current_token.symbol)
 	{
 	case Symbol::op_plus :
-		std::cout << m_current_token.lexeme;
 		next();
 		return OperatorType::plus;
 	case Symbol::op_minus:
-		std::cout << m_current_token.lexeme;
 		next();
 		return OperatorType::minus;
 	case Symbol::op_mult: 
-		std::cout << m_current_token.lexeme;
 		next();
 		return OperatorType::multiplication;
 	case  Symbol::op_div:
-		std::cout << m_current_token.lexeme;
 		next();
 		return OperatorType::division;
 	case Symbol::op_less:
-		std::cout << m_current_token.lexeme;
 		next();
 		return OperatorType::less;
 	case Symbol::op_equal:
-		std::cout << m_current_token.lexeme;
 		next();
 		return OperatorType::equal;
 	case Symbol::op_and:
-		std::cout << m_current_token.lexeme;
 		next();
 		return OperatorType::and;
 	case Symbol::op_not:
-		std::cout << m_current_token.lexeme;
 		next();
 		return OperatorType::not;
 	default:
-		std::cout << "Unexpected operator at " << m_current_line << ":" << m_current_index - m_current_token.lexeme.length() << "." << std::endl;
-		return OperatorType::undefined;
+		std::ostringstream oss;
+		oss << "Unexpected operator at " << m_current_line << ":" << m_current_index - m_current_token.lexeme.length() << "." << std::endl;
+		throw std::logic_error( oss.str() );
+		//return OperatorType::undefined;
 	};
 }
 
@@ -287,21 +294,19 @@ ValueType Parser::varType()
 	switch(m_current_token.symbol)
 	{
 	case Symbol::integer:
-		std::cout << m_current_token.lexeme;
 		next();
 		return ValueType::number;
 	case Symbol::string:
-		std::cout << m_current_token.lexeme;
 		next();
-		return ValueType::string;
+		return ValueType::string_literal;
 	case Symbol::boolean:
-		std::cout << m_current_token.lexeme;
 		next();
 		return ValueType::boolean;
 	default:
-		std::cout << "Unexpected type at " << m_current_line << ":" << m_current_index - m_current_token.lexeme.length() << "." << std::endl;
-		m_status = Status::type_error;
-		return ValueType::undefined;
+		std::ostringstream oss;
+		oss << "Unexpected type at " << m_current_line << ":" << m_current_index - m_current_token.lexeme.length() << "." << std::endl;
+		throw std::logic_error( oss.str() );
+		//return ValueType::undefined;
 	};
 };
 
@@ -309,18 +314,48 @@ bool Parser::match(Symbol symbol, std::string tag)
 {
 	if(m_current_token.symbol == symbol)
 	{
-		std::cout << m_current_token.lexeme;
 		next();
 		return true;
 	} 
-	std::cout << "Unexpected token at "  << m_current_line << ":" << m_current_index - m_current_token.lexeme.length() <<  ", expected token " << tag << "." << std::endl;
-	m_status = Status::syntax_error;
+	std::ostringstream oss;
+	oss << "Unexpected token at "  << m_current_line << ":" << m_current_index - m_current_token.lexeme.length() <<  ", expected token " << tag << "." << std::endl;
+	throw std::logic_error( oss.str() );
 	return false;
 };
 
 void Parser::handleError()
 {
 
+	error = true;
+	bool safe = false;
+
+	while(!safe) {
+		next();
+		switch(m_current_token.symbol)
+		{
+		case ( Symbol::var):
+			safe = true;
+			break;
+		case ( Symbol::for_stmt):
+			safe = true;
+			break;
+		case ( Symbol::print ):
+			safe = true;
+			break;
+		case ( Symbol::read ):
+			safe = true;
+			break;
+		case ( Symbol::assert ):
+			safe = true;
+			break;
+		case ( Symbol::end_of_text ):
+			safe = true;
+			break;
+		default:
+			safe = false;
+			break;
+		};
+	}
 };
 
 void Parser::next()
@@ -332,7 +367,6 @@ void Parser::next()
 	{
 		if(m_current_token.symbol == Symbol::whitespace)
 		{
-			std::cout << m_current_token.lexeme;
 			m_current_index++;
 		}
 		// Skips comments but saves the info of the skipped lines and indexes.
@@ -351,14 +385,13 @@ void Parser::next()
 		};
 		if(m_current_token.symbol == Symbol::newline)
 		{
-			std::cout << m_current_token.lexeme;
 			m_current_line++;
 			m_current_index = 1;
 		};
 		m_current_token = m_scanner.nextToken();
 	}
 
-	if(m_current_token.symbol == Symbol::string) 
+	if(m_current_token.symbol == Symbol::string_literal) 
 	{
 		m_current_token.lexeme = fixLexeme(m_current_token.lexeme);
 	};
@@ -367,9 +400,9 @@ void Parser::next()
 };
 
 /*
-	This function strips away the " characters from the beginning and the end of the string.
-	Also all escape sequences are now in a form "\n", consisting of the chars '\\' and 'n'
-	so the form "\n" has to be changed to '\n'.
+This function strips away the " characters from the beginning and the end of the string.
+Also all escape sequences are now in a form "\n", consisting of the chars '\\' and 'n'
+so the form "\n" has to be changed to '\n'.
 */
 std::string Parser::fixLexeme(std::string lexeme)
 {

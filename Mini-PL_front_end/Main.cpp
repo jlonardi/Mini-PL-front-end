@@ -17,21 +17,23 @@ int main(int argc, char* argv[])
 		Scanner scanner(buffer, rules);
 		Parser parser(scanner);
 		Statement* root = parser.parse();
-		SemanticAnalyzer analyzer(root);
-		bool errors = analyzer.analyze();
-		if(errors)
-		{
-			std::cout << std::endl << "There was errors during the semantic analysis, skipping interpretation part." << std::endl;
+		if(!parser.errors()) {
+			SemanticAnalyzer analyzer(root);
+			bool errors = analyzer.analyze();
+			if(errors)
+			{
+				std::cout << std::endl << "There was errors when the semantic analysis, skipping interpretation part." << std::endl;
+			} else {
+				Interpreter interpreter(root);
+				interpreter.interprete();
+			}
 		} else {
-			Interpreter interpreter(root);
-			interpreter.interprete();
-		}
-
-		std::cout << std::endl << std::endl;
+			std::cout << "There was errors during parsing the source, aborting compilation." << std::endl;
+		};
 	} else {
 		std::cout << "No source file given. Please give a source file as the first argument" << std::endl;
 	}
-
+	std::cout << std::endl;
 	std::cout << "Press a key to continue...";
 	std::cin.get();
 	return 0;
