@@ -86,7 +86,6 @@ Statement* Parser::stmnt()
 				expression = expr();
 			}
 			Statement* stmnt = new VarDeclaration(variableID, expression, type);
-			stmnt->type = StatementType::declaration;
 			stmnt->lineNumber = lineNmbr;
 			return stmnt;
 		}
@@ -97,7 +96,6 @@ Statement* Parser::stmnt()
 			match(Symbol::op_assign, ":=");
 			Expression* ex = expr();
 			Statement* stmnt = new AssignStatement(idName, ex);
-			stmnt->type = StatementType::assign;
 			stmnt->lineNumber = ex->lineNumber;
 			return stmnt;
 		}
@@ -116,7 +114,6 @@ Statement* Parser::stmnt()
 			match(Symbol::end, "end");
 			match(Symbol::for_stmt, "for");
 			Statement* stmnt = new ForStatement(varName, from, to, statements);
-			stmnt->type = StatementType::for_stmnt;
 			stmnt->lineNumber = lineNmbr;
 			return stmnt;
 		}
@@ -127,7 +124,6 @@ Statement* Parser::stmnt()
 			std::string destVar = m_current_token.lexeme;
 			match(Symbol::identifier, "<identifier>");
 			Statement* stmnt = new ReadStatement(destVar);
-			stmnt->type = StatementType::read;
 			stmnt->lineNumber = lineNmbr;
 			return stmnt;
 		}
@@ -136,7 +132,6 @@ Statement* Parser::stmnt()
 			next();
 			Expression* ex = expr();
 			Statement* stmnt = new PrintStatement(ex);
-			stmnt->type = StatementType::print;
 			stmnt->lineNumber = ex->lineNumber;
 			return stmnt;
 		}
@@ -147,12 +142,10 @@ Statement* Parser::stmnt()
 			Expression* ex = expr();
 			match(Symbol::rparen, ")");
 			Statement* stmnt = new AssertStatement(ex);
-			stmnt->type = StatementType::assert;
 			stmnt->lineNumber = ex->lineNumber;
 			return stmnt;
 		}
 	default:
-		//std::cout << "Syntax error! Unexpected token at " << m_current_line << ":" << m_current_index << "." << std::endl;
 		std::ostringstream oss;
 		oss << "Syntax error! Unexpected token at " << m_current_line << ":" << m_current_index << "." << std::endl;
 		throw std::logic_error( oss.str() );
@@ -285,7 +278,6 @@ OperatorType Parser::op()
 		std::ostringstream oss;
 		oss << "Unexpected operator at " << m_current_line << ":" << m_current_index - m_current_token.lexeme.length() << "." << std::endl;
 		throw std::logic_error( oss.str() );
-		//return OperatorType::undefined;
 	};
 }
 
@@ -306,7 +298,6 @@ ValueType Parser::varType()
 		std::ostringstream oss;
 		oss << "Unexpected type at " << m_current_line << ":" << m_current_index - m_current_token.lexeme.length() << "." << std::endl;
 		throw std::logic_error( oss.str() );
-		//return ValueType::undefined;
 	};
 };
 
