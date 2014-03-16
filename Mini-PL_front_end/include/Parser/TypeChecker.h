@@ -3,13 +3,14 @@
 #ifndef TYPECHECKER_H
 #define TYPECHECKER_H
 
+#include "Types/ValueType.h"
+
 class IntegerConst;
 class StringLiteral;
 class Variable;
 class BinaryOp;
 class UnaryOp;
 class BooleanConst;
-enum class ValueType {number, string_literal, boolean, undefined, undeclared};;
 
 class TypeChecker
 {

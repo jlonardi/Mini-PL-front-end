@@ -5,6 +5,7 @@
 
 #include "Parser/TypeChecker.h"
 #include "Interpreter/Visitor.h"
+#include "Types/OperatorType.h"
 #include <vector>
 
 struct Entry {
@@ -41,6 +42,7 @@ protected:
 	virtual ValueType typeCheck(BinaryOp& node);
 
 	std::string typeToString(ValueType type);
+	std::string operatorToString(OperatorType type);
 };
 
 #endif

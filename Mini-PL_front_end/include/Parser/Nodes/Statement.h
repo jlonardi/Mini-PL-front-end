@@ -4,9 +4,8 @@
 #define STMNT_H
 
 #include "Parser/Nodes/Node.h"
+#include "Types/StatementType.h"
 #include <iostream>
-
-enum class StatementType {assert, assign, for_stmnt, print, read, declaration, undefined};
 
 class Statement : public Node
 {

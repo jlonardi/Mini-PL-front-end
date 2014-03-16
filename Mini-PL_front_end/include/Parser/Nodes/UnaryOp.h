@@ -4,8 +4,7 @@
 #define UNARYOP_H
 
 #include "Parser/Nodes/Expression.h"
-
-enum  class UnaryOperandType {not, no_operand};
+#include "Types/UnaryOperandType.h"
 
 class UnaryOp : public Expression
 {

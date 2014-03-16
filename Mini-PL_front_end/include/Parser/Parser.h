@@ -8,8 +8,7 @@
 #include "Parser/Nodes/BinaryOp.h"
 #include "Parser/Nodes/VarDeclaration.h"
 #include "Parser/Nodes/AssignStatement.h"
-
-enum Status {no_error, syntax_error, operator_error, type_error};
+#include "Types/Status.h"
 
 class Parser
 {

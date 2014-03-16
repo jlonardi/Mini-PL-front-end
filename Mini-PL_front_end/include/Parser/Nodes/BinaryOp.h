@@ -4,9 +4,10 @@
 #define BINARYOP_H
 
 #include "Parser/Nodes/Expression.h"
+#include "Types/OperatorType.h"
 #include <iostream>
 
-enum class OperatorType {plus, minus, multiplication, division, less, equal, and, not, undefined};
+
 
 class BinaryOp : public Expression
 {

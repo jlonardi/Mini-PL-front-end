@@ -8,7 +8,7 @@
 #include "Parser/Nodes/PrintStatement.h"
 #include "Parser/Nodes/AssertStatement.h"
 #include "Parser/Nodes/ForStatement.h"
-#include "Scanner/miniRules.h"
+#include "Scanner/MiniRules.h"
 #include <iostream>
 #include <sstream>
 
@@ -120,7 +120,7 @@ Statement* Parser::stmnt()
 			stmnt->lineNumber = lineNmbr;
 			return stmnt;
 		}
-	case Symbol::read:
+	case Symbol::read_stmt:
 		{
 			int lineNmbr = m_current_line;
 			next();
@@ -180,7 +180,7 @@ Expression* Parser::expr()
 		Expression* ex;
 		if(notPresent)
 		{
-			ex = new UnaryOp(UnaryOperandType::not, node1);
+			ex = new UnaryOp(UnaryOperandType::not_op, node1);
 			ex->exprType = ExpressionType::operation;
 			node = ex;
 		} else {
@@ -277,10 +277,10 @@ OperatorType Parser::op()
 		return OperatorType::equal;
 	case Symbol::op_and:
 		next();
-		return OperatorType::and;
+		return OperatorType::op_and;
 	case Symbol::op_not:
 		next();
-		return OperatorType::not;
+		return OperatorType::op_not;
 	default:
 		std::ostringstream oss;
 		oss << "Unexpected operator at " << m_current_line << ":" << m_current_index - m_current_token.lexeme.length() << "." << std::endl;
@@ -342,7 +342,7 @@ void Parser::handleError()
 		case ( Symbol::print ):
 			safe = true;
 			break;
-		case ( Symbol::read ):
+		case ( Symbol::read_stmt ):
 			safe = true;
 			break;
 		case ( Symbol::assert ):

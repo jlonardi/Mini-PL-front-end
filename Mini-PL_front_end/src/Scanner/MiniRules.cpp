@@ -320,7 +320,7 @@ Symbol MiniRules::generateSymbol(std::string tag)
 	}
 	if(!tag.compare("read"))
 	{
-		return Symbol::read;
+		return Symbol::read_stmt;
 	}
 	if(!tag.compare("print"))
 	{

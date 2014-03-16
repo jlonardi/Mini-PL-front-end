@@ -190,7 +190,7 @@ std::string Interpreter::evaluate(BinaryOp& node)
 			case OperatorType::equal:
 				val << std::boolalpha << (std::stoi(lhsValue) == std::stoi(rhsValue));
 				break;
-			case OperatorType::and:
+			case OperatorType::op_and:
 				std::istringstream is(lhsValue + rhsValue);
 				bool lhsBool, rhsBool;
 				is >> std::boolalpha >> lhsBool;

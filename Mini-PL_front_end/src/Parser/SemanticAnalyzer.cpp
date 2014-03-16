@@ -193,7 +193,7 @@ ValueType SemanticAnalyzer::typeCheck(BinaryOp& node)
 	ValueType rhsType = node.rhs->typeCheck(*this);
 	if(lhsType != rhsType)
 	{
-		//std::cout << "Operator left hand side type does not match the right hand side at line " << node.lineNumber << "." << std::endl;
+		std::cout << "Trying to do operation " << operatorToString(node.type) << " for operands that are type " << typeToString(lhsType) << " and " << typeToString(rhsType)  << " on line number " << node.lineNumber << "." << std::endl;
 		errors = true;
 		return ValueType::undefined;	// If types does not match the type is defined as undefined.
 	}
@@ -217,5 +217,21 @@ std::string SemanticAnalyzer::typeToString(ValueType type)
 		return "undeclared";
 	default:
 		return "undefined";
+	};
+};
+
+std::string SemanticAnalyzer::operatorToString(OperatorType type)
+{
+	switch(type)
+	{
+	case OperatorType::plus :return "addition";
+	case OperatorType::minus:return "minus";
+	case OperatorType::multiplication: return "multiplication";
+	case  OperatorType::division: return "division";
+	case OperatorType::less: return "less";
+	case OperatorType::equal: return "equal";
+	case OperatorType::op_and: return "and";
+	case OperatorType::op_not: return "not";
+	default: return "undefined";
 	};
 };

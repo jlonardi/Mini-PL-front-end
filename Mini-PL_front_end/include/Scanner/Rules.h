@@ -3,7 +3,9 @@
 #ifndef RULES_H
 #define RULES_H
 
+#include "Types/Symbol.h"
 #include <vector>
+#include <string>
 #include <map>
 
 /*
@@ -31,15 +33,15 @@
 struct RuleSet {
 	std::vector<std::string> labels;
 	std::vector<std::string> reserved_words;
-	std::vector<std::vector<int>> state_transitions;
-	std::vector<std::vector<int>> state_actions;
-	std::vector<std::vector<int>> state_labels;
+	std::vector<std::vector<int> > state_transitions;
+	std::vector<std::vector<int> > state_actions;
+	std::vector<std::vector<int> > state_labels;
 };
 
 struct Token
 {
 	std::string lexeme;
-	enum Symbol symbol;
+	Symbol symbol;
 };
 
 /*
