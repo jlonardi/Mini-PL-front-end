@@ -127,12 +127,15 @@ void Interpreter::visit(ReadStatement& node)
 
 void Interpreter::visit(PrintStatement& node)
 {
-	std::cout << node.expression->evaluate(*this);
+	std::cout << node.expression->evaluate(*this) << std::endl;
 };
 
 void Interpreter::visit(AssertStatement& node)
 {
 	std::string result = node.expression->evaluate(*this);
+	if(!result.compare("false")) {
+		std::cout << "Assertion at line " << node.lineNumber << " failed." << std::endl;
+	}
 };
 
 std::string Interpreter::evaluate(const IntegerConst& node)
@@ -189,6 +192,9 @@ std::string Interpreter::evaluate(BinaryOp& node)
 				break;
 			case OperatorType::equal:
 				val << std::boolalpha << (std::stoi(lhsValue) == std::stoi(rhsValue));
+				break;
+			case OperatorType::op_not:
+				val << std::boolalpha << (std::stoi(lhsValue) != std::stoi(rhsValue));
 				break;
 			case OperatorType::op_and:
 				std::istringstream is(lhsValue + rhsValue);
